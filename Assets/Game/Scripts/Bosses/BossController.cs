@@ -44,6 +44,7 @@ namespace AIGame.ShootEmUp.Bosses
             bossGo.name = $"Boss_{config.bossId}";
             var bounds = CameraBounds.GetWorldBounds(Camera.main, 0.8f);
             bossGo.transform.position = new Vector3(0f, bounds.MaxY + 0.9f, 0f);
+            bossGo.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
 
             var controller = bossGo.GetComponent<BossController>();
             if (controller == null)

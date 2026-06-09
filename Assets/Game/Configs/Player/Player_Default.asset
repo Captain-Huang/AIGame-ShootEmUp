@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 3522512426943664381, guid: 7089a3ffebf978342b9a3ddc61b1faa5, type: 3}
   maxHealth: 5
-  initialHealth: 3
+  initialHealth: 5
   moveSpeed: 6
   invincibleDuration: 1.5
   initialBombs: 1

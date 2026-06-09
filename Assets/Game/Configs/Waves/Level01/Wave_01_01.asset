@@ -23,4 +23,4 @@ MonoBehaviour:
     horizontalOffset: 0
     customSpawnPoints: []
   waitUntilAllEnemiesDead: 0
-  maxDuration: 8
+  maxDuration: 4

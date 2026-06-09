@@ -3,6 +3,7 @@ using AIGame.ShootEmUp.Bosses;
 using AIGame.ShootEmUp.Configs;
 using AIGame.ShootEmUp.Core;
 using AIGame.ShootEmUp.Enemies;
+using AIGame.ShootEmUp.Utilities;
 using UnityEngine;
 
 namespace AIGame.ShootEmUp.Player
@@ -117,6 +118,11 @@ namespace AIGame.ShootEmUp.Player
                 Debug.LogError("Player bullet config prefab is missing.");
                 return;
             }
+
+            var spawnBounds = CameraBounds.GetWorldBounds(Camera.main, 0.05f);
+            position = new Vector2(
+                Mathf.Clamp(position.x, spawnBounds.MinX, spawnBounds.MaxX),
+                Mathf.Clamp(position.y, spawnBounds.MinY, spawnBounds.MaxY));
 
             var bullet = Object.Instantiate(config.prefab);
             if (bullet == null)

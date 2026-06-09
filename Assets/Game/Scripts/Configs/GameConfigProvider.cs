@@ -254,6 +254,7 @@ namespace AIGame.ShootEmUp.Configs
             level.displayName = $"Level {levelId}";
             level.difficulty = levelId;
             level.estimatedDuration = 90f + levelId * 18f;
+            level.backgroundScrollSpeed = 1.4f + levelId * 0.15f;
             level.enemyHealthMultiplier = 1f + (levelId - 1) * 0.12f;
             level.enemyFireRateMultiplier = 1f + (levelId - 1) * 0.08f;
             level.scoreBonus = 1000 + levelId * 300;

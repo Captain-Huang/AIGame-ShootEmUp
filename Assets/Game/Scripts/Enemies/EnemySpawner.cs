@@ -50,6 +50,7 @@ namespace AIGame.ShootEmUp.Enemies
 
             enemy.name = $"Enemy_{config.enemyId}";
             enemy.transform.position = spawnPosition ?? GetSpawnPosition();
+            enemy.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
 
             var enemyBase = enemy.GetComponent<EnemyBase>();
             var movement = enemy.GetComponent<EnemyMovement>();

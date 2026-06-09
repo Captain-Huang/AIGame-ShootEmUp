@@ -422,6 +422,7 @@ namespace AIGame.ShootEmUp.Configs.Editor
                 }
 
                 level.backgroundSprite = LoadSprite(backgroundPaths[i]);
+                level.backgroundScrollSpeed = 1.35f + i * 0.18f;
                 level.bossConfig = bosses[i];
                 EditorUtility.SetDirty(level);
             }

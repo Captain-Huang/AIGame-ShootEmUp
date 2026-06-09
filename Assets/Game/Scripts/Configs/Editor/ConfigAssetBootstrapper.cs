@@ -224,6 +224,7 @@ namespace AIGame.ShootEmUp.Configs.Editor
                 asset.displayName = $"Level {levelId}";
                 asset.difficulty = levelId;
                 asset.estimatedDuration = 90f + levelId * 15f;
+                asset.backgroundScrollSpeed = 1.4f + levelId * 0.15f;
                 asset.enemyHealthMultiplier = 1f + (levelId - 1) * 0.12f;
                 asset.enemyFireRateMultiplier = 1f + (levelId - 1) * 0.08f;
                 asset.scoreBonus = 1000 + levelId * 300;

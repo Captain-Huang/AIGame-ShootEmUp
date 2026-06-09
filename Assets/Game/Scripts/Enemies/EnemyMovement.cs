@@ -1,4 +1,5 @@
 using AIGame.ShootEmUp.Core;
+using AIGame.ShootEmUp.Player;
 using AIGame.ShootEmUp.Utilities;
 using UnityEngine;
 
@@ -59,9 +60,30 @@ namespace AIGame.ShootEmUp.Enemies
             }
 
             var bounds = CameraBounds.GetWorldBounds(Camera.main, 1.5f);
-            if (transform.position.y < bounds.MinY || transform.position.x < bounds.MinX || transform.position.x > bounds.MaxX)
+            if (transform.position.y < bounds.MinY)
+            {
+                TryApplyEscapePenalty();
+                Destroy(gameObject);
+                return;
+            }
+
+            if (transform.position.x < bounds.MinX || transform.position.x > bounds.MaxX)
             {
                 Destroy(gameObject);
+            }
+        }
+
+        private static void TryApplyEscapePenalty()
+        {
+            if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameState.Playing)
+            {
+                return;
+            }
+
+            var player = FindObjectOfType<PlayerHealth>();
+            if (player != null)
+            {
+                player.TakeDamage(1);
             }
         }
     }

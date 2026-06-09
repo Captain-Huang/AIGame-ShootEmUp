@@ -36,7 +36,7 @@ namespace AIGame.ShootEmUp.Bullets
                 return;
             }
 
-            var bounds = CameraBounds.GetWorldBounds(Camera.main, 1f);
+            var bounds = CameraBounds.GetWorldBounds(Camera.main, -0.75f);
             var position = transform.position;
             if (position.x < bounds.MinX || position.x > bounds.MaxX || position.y < bounds.MinY || position.y > bounds.MaxY)
             {

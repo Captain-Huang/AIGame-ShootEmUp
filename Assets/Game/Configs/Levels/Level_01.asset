@@ -17,6 +17,7 @@ MonoBehaviour:
   difficulty: 1
   estimatedDuration: 105
   backgroundSprite: {fileID: 21300000, guid: 14c7cc9fa9c91034585146429fe556b8, type: 3}
+  backgroundScrollSpeed: 1.35
   bgm: {fileID: 0}
   bossBgm: {fileID: 0}
   waves:

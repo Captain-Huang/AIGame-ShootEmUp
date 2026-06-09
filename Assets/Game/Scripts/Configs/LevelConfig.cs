@@ -13,6 +13,7 @@ namespace AIGame.ShootEmUp.Configs
 
         [Header("Presentation")]
         public Sprite backgroundSprite;
+        public float backgroundScrollSpeed = 1.6f;
         public AudioClip bgm;
         public AudioClip bossBgm;
 
