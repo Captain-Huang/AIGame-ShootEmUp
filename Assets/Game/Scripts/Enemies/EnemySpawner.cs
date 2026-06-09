@@ -26,6 +26,12 @@ namespace AIGame.ShootEmUp.Enemies
                 return null;
             }
 
+            if (config.prefab == null)
+            {
+                Debug.LogError($"EnemyConfig {config.enemyId} has no prefab assigned.");
+                return null;
+            }
+
             var movementPattern = overridePattern != MovementPattern.StraightDown || config.movementPattern == MovementPattern.StraightDown
                 ? overridePattern
                 : config.movementPattern;
@@ -35,29 +41,63 @@ namespace AIGame.ShootEmUp.Enemies
                 movementPattern = config.movementPattern;
             }
 
-            var enemy = RuntimeFactory.CreateActor(
-                $"Enemy_{config.enemyId}",
-                config.tint,
-                config.size.sqrMagnitude > 0f ? config.size : new Vector2(0.6f, 0.6f),
-                6,
-                "Enemy");
+            var enemy = Object.Instantiate(config.prefab);
+            if (enemy == null)
+            {
+                Debug.LogError($"Failed to instantiate enemy prefab for {config.enemyId}.");
+                return null;
+            }
 
+            enemy.name = $"Enemy_{config.enemyId}";
             enemy.transform.position = spawnPosition ?? GetSpawnPosition();
-            var enemyBase = enemy.AddComponent<EnemyBase>();
+
+            var enemyBase = enemy.GetComponent<EnemyBase>();
+            var movement = enemy.GetComponent<EnemyMovement>();
+            if (enemyBase == null || movement == null)
+            {
+                Debug.LogError($"Enemy prefab {config.prefab.name} is missing EnemyBase or EnemyMovement.");
+                Object.Destroy(enemy);
+                return null;
+            }
+
             enemyBase.Configure(
                 maxHealth: config.maxHealth,
                 contactDamage: config.contactDamage,
-                scoreValue: config.score);
+                scoreValue: config.score,
+                dropTable: config.dropTable);
 
-            var movement = enemy.AddComponent<EnemyMovement>();
             movement.Configure(
                 direction: GetDirection(movementPattern),
                 speed: config.moveSpeed,
                 movementPattern: movementPattern);
 
-            if (config.firePattern != FirePattern.None && config.bulletConfig != null)
+            var weapon = enemy.GetComponent<EnemyWeapon>();
+            if (config.firePattern == FirePattern.None)
             {
-                enemy.AddComponent<EnemyWeapon>().Configure(
+                if (weapon != null)
+                {
+                    weapon.enabled = false;
+                }
+            }
+            else if (config.bulletConfig == null)
+            {
+                Debug.LogError($"EnemyConfig {config.enemyId} firePattern is {config.firePattern} but bulletConfig is missing.");
+                if (weapon != null)
+                {
+                    weapon.enabled = false;
+                }
+            }
+            else
+            {
+                if (weapon == null)
+                {
+                    Debug.LogError($"Enemy prefab {config.prefab.name} is missing EnemyWeapon.");
+                    Object.Destroy(enemy);
+                    return null;
+                }
+
+                weapon.enabled = true;
+                weapon.Configure(
                     interval: config.fireInterval,
                     bulletConfig: config.bulletConfig,
                     firePattern: config.firePattern);

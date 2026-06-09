@@ -8,7 +8,12 @@ namespace AIGame.ShootEmUp.Core
         public static event Action EnemySpawned;
         public static event Action EnemyDespawned;
         public static event Action<int> ScoreChanged;
+        public static event Action<int> BestScoreChanged;
+        public static event Action<int> MaxUnlockedLevelChanged;
         public static event Action<int, int> PlayerHealthChanged;
+        public static event Action<int, int> PlayerBombChanged;
+        public static event Action<int, int> PlayerPowerChanged;
+        public static event Action<bool, float> PlayerShieldChanged;
         public static event Action PlayerDied;
         public static event Action<string, int> BossSpawned;
         public static event Action<int, int> BossHealthChanged;
@@ -39,9 +44,34 @@ namespace AIGame.ShootEmUp.Core
             ScoreChanged?.Invoke(score);
         }
 
+        public static void RaiseBestScoreChanged(int bestScore)
+        {
+            BestScoreChanged?.Invoke(bestScore);
+        }
+
+        public static void RaiseMaxUnlockedLevelChanged(int maxUnlockedLevel)
+        {
+            MaxUnlockedLevelChanged?.Invoke(maxUnlockedLevel);
+        }
+
         public static void RaisePlayerHealthChanged(int currentHealth, int maxHealth)
         {
             PlayerHealthChanged?.Invoke(currentHealth, maxHealth);
+        }
+
+        public static void RaisePlayerBombChanged(int currentBombs, int maxBombs)
+        {
+            PlayerBombChanged?.Invoke(currentBombs, maxBombs);
+        }
+
+        public static void RaisePlayerPowerChanged(int currentPower, int maxPower)
+        {
+            PlayerPowerChanged?.Invoke(currentPower, maxPower);
+        }
+
+        public static void RaisePlayerShieldChanged(bool active, float remainingSeconds)
+        {
+            PlayerShieldChanged?.Invoke(active, remainingSeconds);
         }
 
         public static void RaisePlayerDied()

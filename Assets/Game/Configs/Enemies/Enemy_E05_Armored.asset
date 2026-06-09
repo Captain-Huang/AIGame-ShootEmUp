@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3815379f0f7a44a40a6724f638736985, type: 3}
+  m_Name: Enemy_E05_Armored
+  m_EditorClassIdentifier: 
+  enemyId: E05
+  displayName: Armored
+  prefab: {fileID: 3363683010256149445, guid: 08a127efe4c5333448d8dfe589535630, type: 3}
+  tint: {r: 0.62, g: 0.66, b: 0.72, a: 1}
+  size: {x: 1, y: 1}
+  maxHealth: 7
+  moveSpeed: 1.7
+  contactDamage: 2
+  score: 420
+  spawnWeight: 14
+  movementPattern: 4
+  firePattern: 1
+  fireInterval: 1.3
+  bulletConfig: {fileID: 11400000, guid: 836828a788803b14297cffee0431754d, type: 2}
+  dropTable:
+  - pickup: {fileID: 11400000, guid: a99bd5dc8a7fd254098fe6d580d8d369, type: 2}
+    dropChance: 0.08

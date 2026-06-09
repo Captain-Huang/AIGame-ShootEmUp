@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3815379f0f7a44a40a6724f638736985, type: 3}
+  m_Name: Enemy_E08_Elite
+  m_EditorClassIdentifier: 
+  enemyId: E08
+  displayName: Elite
+  prefab: {fileID: 8766907992727460956, guid: 7d617c92bddc84c48919639c5fc3e5c6, type: 3}
+  tint: {r: 0.82, g: 0.24, b: 0.24, a: 1}
+  size: {x: 1.18, y: 1.18}
+  maxHealth: 12
+  moveSpeed: 1.8
+  contactDamage: 2
+  score: 700
+  spawnWeight: 8
+  movementPattern: 3
+  firePattern: 6
+  fireInterval: 0.85
+  bulletConfig: {fileID: 11400000, guid: 8f17b937cac71dc458048300d01eb179, type: 2}
+  dropTable:
+  - pickup: {fileID: 11400000, guid: a99bd5dc8a7fd254098fe6d580d8d369, type: 2}
+    dropChance: 0.08

@@ -13,6 +13,7 @@ namespace AIGame.ShootEmUp.Levels
         private readonly LevelUnlockService _unlockService = new LevelUnlockService();
 
         private LevelConfig[] _levels;
+        private LevelConfig _currentLevelConfig;
         private int _currentLevelIndex = -1;
         private bool _runActive;
 
@@ -20,6 +21,7 @@ namespace AIGame.ShootEmUp.Levels
         public int CurrentLevelId => (_levels != null && _currentLevelIndex >= 0 && _currentLevelIndex < _levels.Length)
             ? _levels[_currentLevelIndex].levelId
             : 0;
+        public LevelConfig CurrentLevelConfig => _currentLevelConfig;
 
         public bool HasNextLevel => _levels != null && _currentLevelIndex + 1 < _levels.Length;
 
@@ -56,6 +58,7 @@ namespace AIGame.ShootEmUp.Levels
         public bool StartRun()
         {
             _currentLevelIndex = -1;
+            _currentLevelConfig = null;
             _runActive = true;
             return StartNextLevel();
         }
@@ -86,11 +89,13 @@ namespace AIGame.ShootEmUp.Levels
         public void StopRun()
         {
             _runActive = false;
+            _currentLevelConfig = null;
             _waveSpawner?.StopRunning();
         }
 
         private void StartLevel(LevelConfig levelConfig)
         {
+            _currentLevelConfig = levelConfig;
             if (levelConfig == null)
             {
                 OnCurrentLevelCompleted();

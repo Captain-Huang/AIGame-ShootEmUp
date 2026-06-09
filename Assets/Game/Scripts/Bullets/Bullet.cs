@@ -15,6 +15,8 @@ namespace AIGame.ShootEmUp.Bullets
         private int _damage;
         private float _remainingLife;
 
+        public BulletOwner Owner => _owner;
+
         public void Initialize(BulletOwner owner, Vector2 direction, float speed, int damage, float lifetime)
         {
             _owner = owner;

@@ -11,6 +11,8 @@ namespace AIGame.ShootEmUp.Player
 
         private int _currentHealth;
         private float _invincibleTimer;
+        private float _shieldTimer;
+        private bool _shieldActive;
         private SpriteRenderer _renderer;
 
         private void Awake()
@@ -29,6 +31,17 @@ namespace AIGame.ShootEmUp.Player
 
         private void Update()
         {
+            if (_shieldActive)
+            {
+                _shieldTimer -= Time.deltaTime;
+                if (_shieldTimer <= 0f)
+                {
+                    _shieldActive = false;
+                    _shieldTimer = 0f;
+                    GameEvents.RaisePlayerShieldChanged(false, 0f);
+                }
+            }
+
             if (_invincibleTimer > 0f)
             {
                 _invincibleTimer -= Time.deltaTime;
@@ -48,13 +61,25 @@ namespace AIGame.ShootEmUp.Player
         {
             _currentHealth = Mathf.Clamp(initialHealth, 1, maxHealth);
             _invincibleTimer = 0f;
+            _shieldActive = false;
+            _shieldTimer = 0f;
             GameEvents.RaisePlayerHealthChanged(_currentHealth, maxHealth);
+            GameEvents.RaisePlayerShieldChanged(false, 0f);
         }
 
         public void TakeDamage(int damage)
         {
             if (damage <= 0 || _invincibleTimer > 0f || GameManager.Instance == null || GameManager.Instance.CurrentState != GameState.Playing)
             {
+                return;
+            }
+
+            if (_shieldActive)
+            {
+                _shieldActive = false;
+                _shieldTimer = 0f;
+                _invincibleTimer = Mathf.Max(_invincibleTimer, 0.15f);
+                GameEvents.RaisePlayerShieldChanged(false, 0f);
                 return;
             }
 
@@ -67,6 +92,31 @@ namespace AIGame.ShootEmUp.Player
             }
 
             _invincibleTimer = invincibleDuration;
+        }
+
+        public bool Heal(int amount)
+        {
+            if (amount <= 0 || _currentHealth >= maxHealth)
+            {
+                return false;
+            }
+
+            _currentHealth = Mathf.Clamp(_currentHealth + amount, 0, maxHealth);
+            GameEvents.RaisePlayerHealthChanged(_currentHealth, maxHealth);
+            return true;
+        }
+
+        public bool ActivateShield(float duration)
+        {
+            if (duration <= 0f)
+            {
+                return false;
+            }
+
+            _shieldActive = true;
+            _shieldTimer = Mathf.Max(_shieldTimer, duration);
+            GameEvents.RaisePlayerShieldChanged(true, _shieldTimer);
+            return true;
         }
 
         private void Die()

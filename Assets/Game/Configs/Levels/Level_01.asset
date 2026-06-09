@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff0478ffd7f8a964faa34c042b749645, type: 3}
+  m_Name: Level_01
+  m_EditorClassIdentifier: 
+  levelId: 1
+  displayName: Level 1
+  difficulty: 1
+  estimatedDuration: 105
+  backgroundSprite: {fileID: 21300000, guid: 14c7cc9fa9c91034585146429fe556b8, type: 3}
+  bgm: {fileID: 0}
+  bossBgm: {fileID: 0}
+  waves:
+  - {fileID: 11400000, guid: 12d79b070403d9244b8871b9981763c0, type: 2}
+  - {fileID: 11400000, guid: b7f66e061ddb861469ff229b745b2f53, type: 2}
+  - {fileID: 11400000, guid: 6cce779887805a1429d7b7c3cce5fda3, type: 2}
+  - {fileID: 11400000, guid: 94d8444c9489e25448013c87751014a3, type: 2}
+  bossConfig: {fileID: 11400000, guid: 36de7f32e0d871c499741726da3c1d46, type: 2}
+  preBossSupplyWave: {fileID: 0}
+  enemyHealthMultiplier: 1
+  enemyFireRateMultiplier: 1
+  scoreBonus: 1300

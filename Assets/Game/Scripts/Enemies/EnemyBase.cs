@@ -1,4 +1,6 @@
+using AIGame.ShootEmUp.Configs;
 using AIGame.ShootEmUp.Core;
+using AIGame.ShootEmUp.Pickups;
 using AIGame.ShootEmUp.Player;
 using UnityEngine;
 
@@ -9,13 +11,15 @@ namespace AIGame.ShootEmUp.Enemies
         private int _currentHealth = 1;
         private int _contactDamage = 1;
         private int _scoreValue = 100;
+        private PickupDropEntry[] _dropTable;
         private bool _isDead;
 
-        public void Configure(int maxHealth, int contactDamage, int scoreValue)
+        public void Configure(int maxHealth, int contactDamage, int scoreValue, PickupDropEntry[] dropTable)
         {
             _currentHealth = Mathf.Max(1, maxHealth);
             _contactDamage = Mathf.Max(1, contactDamage);
             _scoreValue = Mathf.Max(1, scoreValue);
+            _dropTable = dropTable;
         }
 
         public void TakeDamage(int damage)
@@ -59,8 +63,37 @@ namespace AIGame.ShootEmUp.Enemies
             }
 
             _isDead = true;
+            TryDropPickup();
             GameEvents.RaiseEnemyKilled(_scoreValue);
             Destroy(gameObject);
+        }
+
+        private void TryDropPickup()
+        {
+            if (_dropTable == null || _dropTable.Length == 0)
+            {
+                return;
+            }
+
+            var randomValue = Random.value;
+            var cumulative = 0f;
+            for (var i = 0; i < _dropTable.Length; i++)
+            {
+                var entry = _dropTable[i];
+                if (entry.pickup == null || entry.dropChance <= 0f)
+                {
+                    continue;
+                }
+
+                cumulative += Mathf.Clamp01(entry.dropChance);
+                if (randomValue > cumulative)
+                {
+                    continue;
+                }
+
+                Pickup.Spawn(entry.pickup, transform.position);
+                return;
+            }
         }
     }
 }

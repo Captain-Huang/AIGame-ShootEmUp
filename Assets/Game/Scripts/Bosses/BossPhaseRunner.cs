@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AIGame.ShootEmUp.Configs;
 using AIGame.ShootEmUp.Core;
@@ -14,7 +15,6 @@ namespace AIGame.ShootEmUp.Bosses
         private EnemyWeapon _weapon;
         private BossPhaseConfig[] _phases;
         private BossPhaseConfig _currentPhase;
-        private BulletConfig _fallbackBullet;
         private int _activePhaseIndex = -1;
         private float _fireRateMultiplier = 1f;
         private float _baseX;
@@ -34,20 +34,13 @@ namespace AIGame.ShootEmUp.Bosses
             _phases = NormalizePhases(config != null ? config.phases : null);
             if (_phases == null || _phases.Length == 0)
             {
-                _phases = new[]
+                Debug.LogError($"BossConfig {(config != null ? config.bossId : "Unknown")} has no valid phases.");
+                _phases = Array.Empty<BossPhaseConfig>();
+                _currentPhase = null;
+                if (_weapon != null)
                 {
-                    new BossPhaseConfig
-                    {
-                        phaseName = "Phase 1",
-                        startHealthPercent = 1f,
-                        movePattern = MovementPattern.BossHorizontal,
-                        firePattern = FirePattern.TripleFan,
-                        fireInterval = 0.95f,
-                        bulletConfig = ResolveFallbackBullet(),
-                        summonEnemy = null,
-                        summonInterval = 6f
-                    }
-                };
+                    _weapon.enabled = false;
+                }
             }
         }
 
@@ -93,9 +86,22 @@ namespace AIGame.ShootEmUp.Bosses
             _currentPhase = phase;
             _summonTimer = 0.25f;
 
-            var bullet = phase.bulletConfig != null ? phase.bulletConfig : ResolveFallbackBullet();
+            if (_weapon == null)
+            {
+                Debug.LogError($"Boss {gameObject.name} is missing EnemyWeapon at runtime.");
+                return;
+            }
+
+            if (phase.bulletConfig == null)
+            {
+                Debug.LogError($"Boss {gameObject.name} phase {phase.phaseName} has no bulletConfig.");
+                _weapon.enabled = false;
+                return;
+            }
+
             var interval = Mathf.Max(0.08f, phase.fireInterval / _fireRateMultiplier);
-            _weapon.Configure(interval, bullet, phase.firePattern);
+            _weapon.enabled = true;
+            _weapon.Configure(interval, phase.bulletConfig, phase.firePattern);
 
             var phaseName = string.IsNullOrWhiteSpace(phase.phaseName) ? $"Phase {_activePhaseIndex + 1}" : phase.phaseName;
             GameEvents.RaiseBossPhaseChanged(phaseName);
@@ -160,30 +166,13 @@ namespace AIGame.ShootEmUp.Bosses
                 return;
             }
 
-            var spawnPosition = transform.position + new Vector3(Random.Range(-1.4f, 1.4f), -0.75f, 0f);
+            var spawnPosition = transform.position + new Vector3(UnityEngine.Random.Range(-1.4f, 1.4f), -0.75f, 0f);
             _enemySpawner.SpawnEnemy(
                 _currentPhase.summonEnemy,
                 _currentPhase.summonEnemy.movementPattern,
                 spawnPosition);
 
             _summonTimer = Mathf.Max(0.6f, _currentPhase.summonInterval);
-        }
-
-        private BulletConfig ResolveFallbackBullet()
-        {
-            if (_fallbackBullet != null)
-            {
-                return _fallbackBullet;
-            }
-
-            _fallbackBullet = ScriptableObject.CreateInstance<BulletConfig>();
-            _fallbackBullet.bulletId = "Bullet_BossFallback";
-            _fallbackBullet.speed = 6.5f;
-            _fallbackBullet.damage = 1;
-            _fallbackBullet.lifetime = 4.2f;
-            _fallbackBullet.tint = new Color(1f, 0.45f, 0.18f, 1f);
-            _fallbackBullet.size = new Vector2(0.22f, 0.3f);
-            return _fallbackBullet;
         }
 
         private static BossPhaseConfig[] NormalizePhases(BossPhaseConfig[] phases)

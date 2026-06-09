@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6ae707ba6568164685ec96aff1efbd2, type: 3}
+  m_Name: Boss_04_TwinInterceptor
+  m_EditorClassIdentifier: 
+  bossId: B04
+  displayName: Boss 4
+  prefab: {fileID: 2262866129966843052, guid: 47444fcaa664a204f910946a977df8ae, type: 3}
+  tint: {r: 0.925, g: 0.3875, b: 0.3875, a: 1}
+  size: {x: 2.32, y: 1.31}
+  maxHealth: 225
+  moveSpeed: 1.6800001
+  contactDamage: 2
+  score: 5000
+  phases:
+  - phaseName: Phase 1
+    startHealthPercent: 1
+    movePattern: 6
+    firePattern: 2
+    fireInterval: 0.75
+    bulletConfig: {fileID: 11400000, guid: 836828a788803b14297cffee0431754d, type: 2}
+    summonEnemy: {fileID: 0}
+    summonInterval: 6
+  - phaseName: Phase 2
+    startHealthPercent: 0.62
+    movePattern: 5
+    firePattern: 3
+    fireInterval: 0.56000006
+    bulletConfig: {fileID: 11400000, guid: 836828a788803b14297cffee0431754d, type: 2}
+    summonEnemy: {fileID: 11400000, guid: e165250485344174aac0aee5ba729779, type: 2}
+    summonInterval: 3
+  - phaseName: Phase 3
+    startHealthPercent: 0.3
+    movePattern: 3
+    firePattern: 4
+    fireInterval: 0.42
+    bulletConfig: {fileID: 11400000, guid: 836828a788803b14297cffee0431754d, type: 2}
+    summonEnemy: {fileID: 11400000, guid: f829e8d700e9f844387b3f2645c2ff92, type: 2}
+    summonInterval: 3.3199997
+  deathDuration: 1.8
+  guaranteedDrops:
+  - {fileID: 11400000, guid: e82bea09a349dc748906cb745fe4e49e, type: 2}
+  - {fileID: 11400000, guid: 8a36f96ba50c1624db055b0f51561552, type: 2}
+  - {fileID: 11400000, guid: 07212292e65f62e4eb1dc4db458b8f1d, type: 2}

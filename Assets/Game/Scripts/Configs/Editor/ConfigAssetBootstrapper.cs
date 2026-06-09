@@ -7,7 +7,7 @@ namespace AIGame.ShootEmUp.Configs.Editor
 {
     internal static class ConfigAssetBootstrapper
     {
-        [MenuItem("Tools/ShootEmUp/Generate Default Config Assets")]
+        // [MenuItem("Tools/ShootEmUp/Generate Default Config Assets")]
         public static void GenerateDefaultAssets()
         {
             EnsureDefaultsExist();
@@ -129,36 +129,71 @@ namespace AIGame.ShootEmUp.Configs.Editor
                 asset.size = new Vector2(0.75f, 0.75f);
             });
 
-            CreateIfMissing<PickupConfig>(ConfigAssetPaths.PickupPowerUp, asset =>
+            var pickupPower = CreateIfMissing<PickupConfig>(ConfigAssetPaths.PickupPowerUp, asset =>
             {
                 asset.pickupId = "Pickup_PowerUp";
                 asset.type = PickupType.PowerUp;
                 asset.value = 1;
+                asset.moveSpeed = 1.6f;
             });
-            CreateIfMissing<PickupConfig>(ConfigAssetPaths.PickupHeal, asset =>
+            var pickupHeal = CreateIfMissing<PickupConfig>(ConfigAssetPaths.PickupHeal, asset =>
             {
                 asset.pickupId = "Pickup_Heal";
                 asset.type = PickupType.Heal;
                 asset.value = 1;
+                asset.moveSpeed = 1.5f;
             });
-            CreateIfMissing<PickupConfig>(ConfigAssetPaths.PickupBomb, asset =>
+            var pickupBomb = CreateIfMissing<PickupConfig>(ConfigAssetPaths.PickupBomb, asset =>
             {
                 asset.pickupId = "Pickup_Bomb";
                 asset.type = PickupType.Bomb;
                 asset.value = 1;
+                asset.moveSpeed = 1.45f;
             });
-            CreateIfMissing<PickupConfig>(ConfigAssetPaths.PickupShield, asset =>
+            var pickupShield = CreateIfMissing<PickupConfig>(ConfigAssetPaths.PickupShield, asset =>
             {
                 asset.pickupId = "Pickup_Shield";
                 asset.type = PickupType.Shield;
                 asset.duration = 10f;
+                asset.moveSpeed = 1.55f;
             });
 
-            var boss01 = EnsureBoss(1, ConfigAssetPaths.Boss01, enemyBullet, enemyE01, enemyE02, enemyE03);
-            var boss02 = EnsureBoss(2, ConfigAssetPaths.Boss02, enemyBullet, enemyE01, enemyE02, enemyE03);
-            var boss03 = EnsureBoss(3, ConfigAssetPaths.Boss03, enemyBullet, enemyE01, enemyE02, enemyE03);
-            var boss04 = EnsureBoss(4, ConfigAssetPaths.Boss04, enemyBullet, enemyE01, enemyE02, enemyE03);
-            var boss05 = EnsureBoss(5, ConfigAssetPaths.Boss05, enemyBullet, enemyE01, enemyE02, enemyE03);
+            if (enemyE01.dropTable == null || enemyE01.dropTable.Length == 0)
+            {
+                enemyE01.dropTable = new[]
+                {
+                    new PickupDropEntry { pickup = pickupPower, dropChance = 0.08f },
+                    new PickupDropEntry { pickup = pickupHeal, dropChance = 0.06f }
+                };
+                EditorUtility.SetDirty(enemyE01);
+            }
+
+            if (enemyE02.dropTable == null || enemyE02.dropTable.Length == 0)
+            {
+                enemyE02.dropTable = new[]
+                {
+                    new PickupDropEntry { pickup = pickupHeal, dropChance = 0.1f },
+                    new PickupDropEntry { pickup = pickupBomb, dropChance = 0.07f }
+                };
+                EditorUtility.SetDirty(enemyE02);
+            }
+
+            if (enemyE03.dropTable == null || enemyE03.dropTable.Length == 0)
+            {
+                enemyE03.dropTable = new[]
+                {
+                    new PickupDropEntry { pickup = pickupPower, dropChance = 0.18f },
+                    new PickupDropEntry { pickup = pickupShield, dropChance = 0.08f },
+                    new PickupDropEntry { pickup = pickupBomb, dropChance = 0.07f }
+                };
+                EditorUtility.SetDirty(enemyE03);
+            }
+
+            var boss01 = EnsureBoss(1, ConfigAssetPaths.Boss01, enemyBullet, enemyE01, enemyE02, enemyE03, pickupPower, pickupHeal, pickupBomb);
+            var boss02 = EnsureBoss(2, ConfigAssetPaths.Boss02, enemyBullet, enemyE01, enemyE02, enemyE03, pickupPower, pickupHeal, pickupBomb);
+            var boss03 = EnsureBoss(3, ConfigAssetPaths.Boss03, enemyBullet, enemyE01, enemyE02, enemyE03, pickupPower, pickupHeal, pickupBomb);
+            var boss04 = EnsureBoss(4, ConfigAssetPaths.Boss04, enemyBullet, enemyE01, enemyE02, enemyE03, pickupPower, pickupHeal, pickupBomb);
+            var boss05 = EnsureBoss(5, ConfigAssetPaths.Boss05, enemyBullet, enemyE01, enemyE02, enemyE03, pickupPower, pickupHeal, pickupBomb);
 
             var levels = new[]
             {
@@ -221,7 +256,10 @@ namespace AIGame.ShootEmUp.Configs.Editor
             BulletConfig enemyBullet,
             EnemyConfig e01,
             EnemyConfig e02,
-            EnemyConfig e03)
+            EnemyConfig e03,
+            PickupConfig pickupPower,
+            PickupConfig pickupHeal,
+            PickupConfig pickupBomb)
         {
             var boss = CreateIfMissing<BossConfig>(bossPath, asset =>
             {
@@ -272,6 +310,12 @@ namespace AIGame.ShootEmUp.Configs.Editor
                         summonInterval = Mathf.Max(1.1f, 4.2f - levelId * 0.22f)
                     }
                 };
+                EditorUtility.SetDirty(boss);
+            }
+
+            if (boss.guaranteedDrops == null || boss.guaranteedDrops.Length == 0)
+            {
+                boss.guaranteedDrops = new[] { pickupPower, pickupHeal, pickupBomb };
                 EditorUtility.SetDirty(boss);
             }
 

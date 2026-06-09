@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Text;
 using AIGame.ShootEmUp.Core;
 using UnityEngine;
 
@@ -12,40 +14,92 @@ namespace AIGame.ShootEmUp.Configs
         public PlayerConfig PlayerConfig { get; private set; }
         public EnemyConfig[] EnemyConfigs { get; private set; }
         public LevelDatabase LevelDatabase { get; private set; }
+        public bool HasFallbackData { get; private set; }
+        public string MissingConfigSummary { get; private set; } = string.Empty;
 
         public static GameConfigProvider Load()
         {
             var provider = new GameConfigProvider();
+            HashSet<string> missingAssets = null;
 
 #if UNITY_EDITOR
-            provider.PlayerConfig = LoadAsset<PlayerConfig>(ConfigAssetPaths.PlayerDefault);
-            var e01 = LoadAsset<EnemyConfig>(ConfigAssetPaths.EnemyE01);
-            var e02 = LoadAsset<EnemyConfig>(ConfigAssetPaths.EnemyE02);
-            var e03 = LoadAsset<EnemyConfig>(ConfigAssetPaths.EnemyE03);
+            missingAssets = new HashSet<string>();
+
+            provider.PlayerConfig = LoadAsset<PlayerConfig>(ConfigAssetPaths.PlayerDefault, missingAssets);
+            var e01 = LoadAsset<EnemyConfig>(ConfigAssetPaths.EnemyE01, missingAssets);
+            var e02 = LoadAsset<EnemyConfig>(ConfigAssetPaths.EnemyE02, missingAssets);
+            var e03 = LoadAsset<EnemyConfig>(ConfigAssetPaths.EnemyE03, missingAssets);
             provider.EnemyConfigs = FilterNull(e01, e02, e03);
-            provider.LevelDatabase = LoadAsset<LevelDatabase>(ConfigAssetPaths.LevelDatabase);
+            provider.LevelDatabase = LoadAsset<LevelDatabase>(ConfigAssetPaths.LevelDatabase, missingAssets);
+            provider.ValidateRequiredAssets(missingAssets);
 #endif
 
-            provider.FillFallbacksIfNeeded();
+            provider.FillFallbacksIfNeeded(missingAssets);
             return provider;
         }
 
-        private void FillFallbacksIfNeeded()
+        private void FillFallbacksIfNeeded(HashSet<string> missingAssets)
         {
+            var fallbackReasons = new HashSet<string>();
+            if (missingAssets != null)
+            {
+                foreach (var missing in missingAssets)
+                {
+                    fallbackReasons.Add(missing);
+                }
+            }
+
             if (PlayerConfig == null)
             {
                 PlayerConfig = BuildFallbackPlayerConfig();
+                fallbackReasons.Add(ConfigAssetPaths.PlayerDefault);
             }
 
             if (EnemyConfigs == null || EnemyConfigs.Length == 0)
             {
                 EnemyConfigs = BuildFallbackEnemies();
+                fallbackReasons.Add("Enemy configs (E01-E03)");
             }
 
             if (LevelDatabase == null || LevelDatabase.levels == null || LevelDatabase.levels.Length == 0)
             {
                 LevelDatabase = BuildFallbackLevelDatabase(EnemyConfigs);
+                fallbackReasons.Add(ConfigAssetPaths.LevelDatabase);
             }
+
+            HasFallbackData = fallbackReasons.Count > 0;
+            MissingConfigSummary = BuildMissingSummary(fallbackReasons);
+            if (HasFallbackData)
+            {
+                Debug.LogError(
+                    "[GameConfigProvider] Missing planned config assets; fallback data is active. " +
+                    "Please run Tools/ShootEmUp/Generate Planned Configs And Prefabs.\n" +
+                    MissingConfigSummary);
+            }
+        }
+
+        private static string BuildMissingSummary(IEnumerable<string> missingItems)
+        {
+            if (missingItems == null)
+            {
+                return "Missing: none";
+            }
+
+            var builder = new StringBuilder();
+            builder.AppendLine("Missing:");
+            var count = 0;
+            foreach (var item in missingItems)
+            {
+                count++;
+                builder.Append("- ").AppendLine(item);
+            }
+
+            if (count == 0)
+            {
+                return "Missing: none";
+            }
+
+            return builder.ToString().TrimEnd();
         }
 
         private static PlayerConfig BuildFallbackPlayerConfig()
@@ -68,6 +122,20 @@ namespace AIGame.ShootEmUp.Configs
                     bulletConfig = playerBullet,
                     angles = new[] { 0f },
                     offsets = new[] { Vector2.zero }
+                },
+                new WeaponPowerLevel
+                {
+                    level = 2,
+                    bulletConfig = playerBullet,
+                    angles = new[] { -4f, 4f },
+                    offsets = new[] { new Vector2(-0.12f, 0f), new Vector2(0.12f, 0f) }
+                },
+                new WeaponPowerLevel
+                {
+                    level = 3,
+                    bulletConfig = playerBullet,
+                    angles = new[] { -10f, 0f, 10f },
+                    offsets = new[] { new Vector2(-0.16f, 0f), Vector2.zero, new Vector2(0.16f, 0f) }
                 }
             };
 
@@ -76,6 +144,9 @@ namespace AIGame.ShootEmUp.Configs
             player.maxHealth = 5;
             player.invincibleDuration = 1.5f;
             player.moveSpeed = 6f;
+            player.initialBombs = 1;
+            player.maxBombs = 3;
+            player.maxPowerLevel = 3;
             player.weaponConfig = weapon;
             return player;
         }
@@ -90,6 +161,12 @@ namespace AIGame.ShootEmUp.Configs
             enemyBullet.tint = new Color(1f, 0.4f, 0.45f, 1f);
             enemyBullet.size = new Vector2(0.18f, 0.26f);
 
+            var powerPickup = BuildFallbackPickup("Pickup_PowerUp_Fallback", PickupType.PowerUp, 1, 0f, 1.6f);
+            var healPickup = BuildFallbackPickup("Pickup_Heal_Fallback", PickupType.Heal, 1, 0f, 1.5f);
+            var bombPickup = BuildFallbackPickup("Pickup_Bomb_Fallback", PickupType.Bomb, 1, 0f, 1.45f);
+            var shieldPickup = BuildFallbackPickup("Pickup_Shield_Fallback", PickupType.Shield, 1, 8f, 1.55f);
+            var scorePickup = BuildFallbackPickup("Pickup_Score_Fallback", PickupType.Score, 120, 0f, 1.7f);
+
             var e01 = ScriptableObject.CreateInstance<EnemyConfig>();
             e01.enemyId = "E01";
             e01.displayName = "Small Straight";
@@ -102,6 +179,11 @@ namespace AIGame.ShootEmUp.Configs
             e01.size = new Vector2(0.6f, 0.6f);
             e01.movementPattern = MovementPattern.StraightDown;
             e01.firePattern = FirePattern.None;
+            e01.dropTable = new[]
+            {
+                new PickupDropEntry { pickup = scorePickup, dropChance = 0.15f },
+                new PickupDropEntry { pickup = powerPickup, dropChance = 0.08f }
+            };
 
             var e02 = ScriptableObject.CreateInstance<EnemyConfig>();
             e02.enemyId = "E02";
@@ -115,6 +197,12 @@ namespace AIGame.ShootEmUp.Configs
             e02.size = new Vector2(0.58f, 0.58f);
             e02.movementPattern = MovementPattern.DiagonalLeft;
             e02.firePattern = FirePattern.None;
+            e02.dropTable = new[]
+            {
+                new PickupDropEntry { pickup = healPickup, dropChance = 0.1f },
+                new PickupDropEntry { pickup = bombPickup, dropChance = 0.06f },
+                new PickupDropEntry { pickup = scorePickup, dropChance = 0.1f }
+            };
 
             var e03 = ScriptableObject.CreateInstance<EnemyConfig>();
             e03.enemyId = "E03";
@@ -130,6 +218,12 @@ namespace AIGame.ShootEmUp.Configs
             e03.firePattern = FirePattern.SingleForward;
             e03.fireInterval = 1.25f;
             e03.bulletConfig = enemyBullet;
+            e03.dropTable = new[]
+            {
+                new PickupDropEntry { pickup = powerPickup, dropChance = 0.18f },
+                new PickupDropEntry { pickup = shieldPickup, dropChance = 0.08f },
+                new PickupDropEntry { pickup = bombPickup, dropChance = 0.07f }
+            };
 
             return new[] { e01, e02, e03 };
         }
@@ -221,6 +315,12 @@ namespace AIGame.ShootEmUp.Configs
                     summonInterval = Mathf.Max(1.1f, 4.2f - levelId * 0.22f)
                 }
             };
+            boss.guaranteedDrops = new[]
+            {
+                BuildFallbackPickup($"Pickup_BossPower_{levelId:00}", PickupType.PowerUp, 1, 0f, 1.5f),
+                BuildFallbackPickup($"Pickup_BossHeal_{levelId:00}", PickupType.Heal, 1, 0f, 1.5f),
+                BuildFallbackPickup($"Pickup_BossBomb_{levelId:00}", PickupType.Bomb, 1, 0f, 1.5f)
+            };
 
             return boss;
         }
@@ -235,6 +335,17 @@ namespace AIGame.ShootEmUp.Configs
             bullet.tint = new Color(1f, 0.48f, 0.2f, 1f);
             bullet.size = new Vector2(0.22f, 0.3f);
             return bullet;
+        }
+
+        private static PickupConfig BuildFallbackPickup(string id, PickupType type, int value, float duration, float moveSpeed)
+        {
+            var pickup = ScriptableObject.CreateInstance<PickupConfig>();
+            pickup.pickupId = id;
+            pickup.type = type;
+            pickup.value = value;
+            pickup.duration = duration;
+            pickup.moveSpeed = moveSpeed;
+            return pickup;
         }
 
         private static WaveConfig CreateWave(
@@ -314,9 +425,68 @@ namespace AIGame.ShootEmUp.Configs
         }
 
 #if UNITY_EDITOR
-        private static T LoadAsset<T>(string assetPath) where T : Object
+        private void ValidateRequiredAssets(ISet<string> missingAssets)
         {
-            return AssetDatabase.LoadAssetAtPath<T>(assetPath);
+            if (missingAssets == null)
+            {
+                return;
+            }
+
+            var requiredPaths = new[]
+            {
+                ConfigAssetPaths.PlayerDefault,
+                ConfigAssetPaths.WeaponPlayerDefault,
+                ConfigAssetPaths.BulletPlayerBasic,
+                ConfigAssetPaths.BulletPlayerPower,
+                ConfigAssetPaths.BulletPlayerLaser,
+                ConfigAssetPaths.BulletEnemyBasic,
+                ConfigAssetPaths.BulletEnemyFan,
+                ConfigAssetPaths.BulletEnemyTracking,
+                ConfigAssetPaths.BulletBossHeavy,
+                ConfigAssetPaths.EnemyE01,
+                ConfigAssetPaths.EnemyE02,
+                ConfigAssetPaths.EnemyE03,
+                ConfigAssetPaths.EnemyE04,
+                ConfigAssetPaths.EnemyE05,
+                ConfigAssetPaths.EnemyE06,
+                ConfigAssetPaths.EnemyE07,
+                ConfigAssetPaths.EnemyE08,
+                ConfigAssetPaths.Boss01,
+                ConfigAssetPaths.Boss02,
+                ConfigAssetPaths.Boss03,
+                ConfigAssetPaths.Boss04,
+                ConfigAssetPaths.Boss05,
+                ConfigAssetPaths.PickupPowerUp,
+                ConfigAssetPaths.PickupHeal,
+                ConfigAssetPaths.PickupBomb,
+                ConfigAssetPaths.PickupShield,
+                ConfigAssetPaths.PickupScore,
+                ConfigAssetPaths.Level01,
+                ConfigAssetPaths.Level02,
+                ConfigAssetPaths.Level03,
+                ConfigAssetPaths.Level04,
+                ConfigAssetPaths.Level05,
+                ConfigAssetPaths.LevelDatabase
+            };
+
+            for (var i = 0; i < requiredPaths.Length; i++)
+            {
+                if (AssetDatabase.LoadAssetAtPath<Object>(requiredPaths[i]) == null)
+                {
+                    missingAssets.Add(requiredPaths[i]);
+                }
+            }
+        }
+
+        private static T LoadAsset<T>(string assetPath, ISet<string> missingAssets) where T : Object
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+            if (asset == null && missingAssets != null)
+            {
+                missingAssets.Add(assetPath);
+            }
+
+            return asset;
         }
 #endif
     }

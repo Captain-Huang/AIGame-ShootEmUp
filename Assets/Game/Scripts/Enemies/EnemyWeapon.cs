@@ -1,7 +1,6 @@
 using AIGame.ShootEmUp.Bullets;
 using AIGame.ShootEmUp.Configs;
 using AIGame.ShootEmUp.Core;
-using AIGame.ShootEmUp.Utilities;
 using UnityEngine;
 
 namespace AIGame.ShootEmUp.Enemies
@@ -87,17 +86,35 @@ namespace AIGame.ShootEmUp.Enemies
 
         private void SpawnBullet(Vector2 direction)
         {
-            var size = _bulletConfig.size.sqrMagnitude > 0f ? _bulletConfig.size : new Vector2(0.18f, 0.26f);
-            var bullet = RuntimeFactory.CreateActor(
-                "EnemyBullet",
-                _bulletConfig.tint,
-                size,
-                8,
-                "EnemyBullet");
+            if (_bulletConfig == null || _bulletConfig.prefab == null)
+            {
+                Debug.LogError("Enemy bullet config prefab is missing.");
+                return;
+            }
 
+            var bullet = Object.Instantiate(_bulletConfig.prefab);
+            if (bullet == null)
+            {
+                Debug.LogError($"Failed to instantiate enemy bullet prefab for {_bulletConfig.bulletId}.");
+                return;
+            }
+
+            bullet.name = string.IsNullOrWhiteSpace(_bulletConfig.bulletId) ? "EnemyBullet" : _bulletConfig.bulletId;
             bullet.transform.position = transform.position + (Vector3)(direction.normalized * 0.5f);
+            var layer = LayerMask.NameToLayer("EnemyBullet");
+            if (layer >= 0)
+            {
+                bullet.layer = layer;
+            }
 
-            var bulletLogic = bullet.AddComponent<Bullet>();
+            var bulletLogic = bullet.GetComponent<Bullet>();
+            if (bulletLogic == null)
+            {
+                Debug.LogError($"Bullet prefab {_bulletConfig.prefab.name} is missing Bullet component.");
+                Destroy(bullet);
+                return;
+            }
+
             bulletLogic.Initialize(
                 BulletOwner.Enemy,
                 direction.normalized,

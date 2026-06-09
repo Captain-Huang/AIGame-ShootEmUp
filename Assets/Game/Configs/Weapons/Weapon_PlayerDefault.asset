@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ce7c7a4791915d4e9e13074a38c60bc, type: 3}
+  m_Name: Weapon_PlayerDefault
+  m_EditorClassIdentifier: 
+  fireInterval: 0.16
+  powerLevels:
+  - level: 1
+    bulletConfig: {fileID: 11400000, guid: 4fcafdad8c28be9478b3be18c73d34ac, type: 2}
+    angles:
+    - 0
+    offsets:
+    - {x: 0, y: 0}
+  - level: 2
+    bulletConfig: {fileID: 11400000, guid: 4fcafdad8c28be9478b3be18c73d34ac, type: 2}
+    angles:
+    - -4
+    - 4
+    offsets:
+    - {x: -0.12, y: 0}
+    - {x: 0.12, y: 0}
+  - level: 3
+    bulletConfig: {fileID: 11400000, guid: 62121d7619739454ba8412b78fcf304f, type: 2}
+    angles:
+    - -10
+    - 0
+    - 10
+    offsets:
+    - {x: -0.16, y: 0}
+    - {x: 0, y: 0}
+    - {x: 0.16, y: 0}
+  - level: 4
+    bulletConfig: {fileID: 11400000, guid: 62121d7619739454ba8412b78fcf304f, type: 2}
+    angles:
+    - -16
+    - -8
+    - 0
+    - 8
+    - 16
+    offsets:
+    - {x: -0.24, y: 0}
+    - {x: -0.12, y: 0}
+    - {x: 0, y: 0}
+    - {x: 0.12, y: 0}
+    - {x: 0.24, y: 0}
+  bombDamage: 42
+  bombBossDamage: 22

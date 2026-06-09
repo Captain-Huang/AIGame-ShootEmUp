@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 834cd50ae41658a429a7c511c7eb8801, type: 3}
+  m_Name: Player_Default
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 3522512426943664381, guid: 7089a3ffebf978342b9a3ddc61b1faa5, type: 3}
+  maxHealth: 5
+  initialHealth: 3
+  moveSpeed: 6
+  invincibleDuration: 1.5
+  initialBombs: 1
+  maxBombs: 3
+  maxPowerLevel: 4
+  weaponConfig: {fileID: 11400000, guid: c3c6267f87aa107478b604d06bcfc654, type: 2}
